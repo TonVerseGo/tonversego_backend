@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - DB_USERNAME=name
+      - DB_PASSWORD=pass
+      - DB_HOSTNAME=tonversego.com
+      - DB_PORT=5432
+      - DB_NAME=tonverse_db
+      - PHOTO_FOLDER=/app/uploads/photos
+      - MODEL_FOLDER=/app/uploads/models
+      - TELEGRAM_BOT_TOKEN=token
+    restart: unless-stopped
