@@ -9,6 +9,7 @@ class GetNearbyNFT(BaseModel):
 class ReturnNearbyNFT(BaseModel):
     hint: str
     distance_m: float
+    direction: str
 
 class MintNFT(BaseModel):
     secret_code: str

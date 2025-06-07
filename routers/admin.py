@@ -21,11 +21,13 @@ async def create_nft(
     photo: UploadFile = File(...),
     model: UploadFile = File(...)
 ):
+    # Создаем директории если их нет
     photo_folder = os.getenv("PHOTO_FOLDER")
     model_folder = os.getenv("MODEL_FOLDER")
     Path(photo_folder).mkdir(parents=True, exist_ok=True)
     Path(model_folder).mkdir(parents=True, exist_ok=True)
 
+    # Сохраняем фото
     photo_ext = photo.filename.split('.')[-1]
     photo_filename = f"{uuid.uuid4()}.{photo_ext}"
     photo_path = os.path.join(photo_folder, photo_filename)
@@ -33,6 +35,7 @@ async def create_nft(
     with open(photo_path, "wb") as buffer:
         shutil.copyfileobj(photo.file, buffer)
 
+    # Сохраняем 3D модель
     model_ext = model.filename.split('.')[-1]
     model_filename = f"{uuid.uuid4()}.{model_ext}"
     model_path = os.path.join(model_folder, model_filename)
@@ -40,9 +43,11 @@ async def create_nft(
     with open(model_path, "wb") as buffer:
         shutil.copyfileobj(model.file, buffer)
 
+    # Upload to IPFS
     photo_ipfs_url = await upload_to_ipfs(photo_path)
     model_ipfs_url = await upload_to_ipfs(model_path)
 
+    # Создаём запись в БД
     nft = await NFT.create(
         name=name,
         ton_address=ton_address,

@@ -19,10 +19,12 @@ async def get_nearby_nft(
     for nft in all_nfts:
         distance = Geoposition.get_distance((lat, lng), (nft.lat, nft.lng))
         if distance <= radius_meters:
+            direction = Geoposition.get_direction((lat, lng), (nft.lat, nft.lng))
             result.append(
                 ReturnNearbyNFT(
                     hint=nft.hint,
-                    distance_m=distance
+                    distance_m=distance,
+                    direction=direction
                 )
             )
     
@@ -65,5 +67,5 @@ async def mint_nft(data: MintNFT, response: Response) -> ReturnMintNFT:
         nft=nearest_nft
     )
     
-    await send_message(f"🥳 You found NFT: {nearest_nft.name}", user_id)
+    await send_message(f"🥳 You found NFT: {nearest_nft.name}", user_id, nearest_nft.photo_url)
     return ReturnMintNFT(status=True)
