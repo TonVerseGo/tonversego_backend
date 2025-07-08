@@ -1,11 +1,12 @@
 from tortoise import Model, fields
 
 class User(Model):
-    id = fields.BigIntField(pk=True) # User ID (Telegram)
+    id = fields.BigIntField(pk=True)
     ton_wallet = fields.CharField(max_length=64, unique=True)
     nickname = fields.CharField(max_length=32)
     created_at = fields.DatetimeField(auto_now_add=True)
 
+    nfts: fields.ReverseRelation["NFT"]
     mints: fields.ReverseRelation["NFTMintLog"]
 
 class NFT(Model):
@@ -20,6 +21,7 @@ class NFT(Model):
     ownet_wallet = fields.CharField(max_length=64, nullable=True)
     model_url = fields.TextField()
     is_found = fields.BooleanField(default=False)
+    owner_id = fields.ForeignKeyField("models.User", related_name="nfts")
 
     mints: fields.ReverseRelation["NFTMintLog"]
 

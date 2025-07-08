@@ -17,7 +17,7 @@ RUN mkdir -p /app/uploads/photos /app/uploads/models && \
 ENV PHOTO_FOLDER=/app/uploads/photos
 ENV MODEL_FOLDER=/app/uploads/models
 
-EXPOSE 8000
+EXPOSE 8080
 
 COPY scripts/start.sh /start.sh
 RUN chmod +x /start.sh

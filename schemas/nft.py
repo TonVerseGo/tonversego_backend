@@ -8,8 +8,9 @@ class GetNearbyNFT(BaseModel):
 
 class ReturnNearbyNFT(BaseModel):
     hint: str
+    lat: float
+    lng: float
     distance_m: float
-    direction: str
 
 class MintNFT(BaseModel):
     secret_code: str
@@ -27,3 +28,10 @@ class CreateNFTData(BaseModel):
     lng: float
     hint: str
     owner_wallet: Optional[str] = Field(None, max_length=64)
+
+class GetNFTsOfUsers(BaseModel):
+    image: str
+    name: str
+    description: str
+    lat: float
+    lng: float

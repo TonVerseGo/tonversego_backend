@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from database.models import User
+from database.models import User, NFTMintLog
 from schemas.user import CreateUser, ReturnUser
+from schemas.nft import GetNFTsOfUsers
 
 user_router = APIRouter(prefix="/user")
 
@@ -69,3 +70,26 @@ async def verify_token(token: str):
         ton_wallet=user.ton_wallet,
         nickname=user.nickname
     )
+
+@user_router.get("/gifts/{user_id}")
+async def get_user_gifts(user_id: int) -> list[GetNFTsOfUsers] | list:
+    res = []
+    
+    user = await User.get_or_none(id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    user_nfts = await User.filter(id=user.id).select_related("nfts").all()
+    for nft_log in user_nfts.nfts:
+        res.append(GetNFTsOfUsers(
+            image=nft_log.nft.photo_url.replace("ipfs://", "https://ipfs.io/ipfs/"),
+            name=nft_log.nft.name,
+            description=nft_log.nft.description,
+            lat=nft_log.nft.lat,
+            lng=nft_log.nft.lng
+        ))
+
+    return res

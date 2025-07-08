@@ -8,4 +8,4 @@ aerich init -t database.TORTOISE_ORM || true
 aerich init-db || true
 
 echo "Starting FastAPI application..."
-exec uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+exec uvicorn app:app --host 0.0.0.0 --port 8080 --reload

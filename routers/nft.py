@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response, Query
 from utils.geoposition import Geoposition
 from database.models import NFT, User, NFTMintLog
 from utils.bot_messages import send_message
-from schemas.nft import GetNearbyNFT, ReturnNearbyNFT, MintNFT, ReturnMintNFT
+from schemas.nft import ReturnNearbyNFT, MintNFT, ReturnMintNFT
 
 nft_router = APIRouter(prefix="/nft")
 
@@ -19,25 +19,27 @@ async def get_nearby_nft(
     for nft in all_nfts:
         distance = Geoposition.get_distance((lat, lng), (nft.lat, nft.lng))
         if distance <= radius_meters:
-            direction = Geoposition.get_direction((lat, lng), (nft.lat, nft.lng))
             result.append(
                 ReturnNearbyNFT(
                     hint=nft.hint,
-                    distance_m=distance,
-                    direction=direction
+                    lat=nft.lat,
+                    lng=nft.lng,
+                    distance_m=distance
                 )
             )
+
+    result = sorted(result, key=lambda nft: nft.distance_m)
     
     return result
 
 @nft_router.post("/mint")
 async def mint_nft(data: MintNFT, response: Response) -> ReturnMintNFT:
     user_id = data.secret_code.strip("TonVerseGo_")
-
-    try: user_id = int(user_id)
-    except: 
+    if not isinstance(user_id, int): 
         response.status_code = 403
         return ReturnMintNFT(status=False)
+    
+    user_id = int(user_id)
 
     user = await User.get_or_none(id=user_id)
     if not user:
@@ -57,11 +59,9 @@ async def mint_nft(data: MintNFT, response: Response) -> ReturnMintNFT:
     if not nearest_nft:
         return ReturnMintNFT(status=False)
         
-    # Отмечаем NFT как найденный
     nearest_nft.is_found = True
     await nearest_nft.save()
     
-    # Создаем запись о минте
     await NFTMintLog.create(
         user=user,
         nft=nearest_nft
